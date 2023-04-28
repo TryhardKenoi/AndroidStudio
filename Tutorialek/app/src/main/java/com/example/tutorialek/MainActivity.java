@@ -1,7 +1,9 @@
 package com.example.tutorialek;
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
@@ -13,10 +15,13 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.provider.MediaStore;
 import android.util.Log;
+import android.view.Surface;
 import android.view.View;
 
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.WindowCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -42,54 +47,27 @@ public class MainActivity extends AppCompatActivity {
 
         cameraManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
 
-        try {
-            String[] cameraIds = cameraManager.getCameraIdList();
-            for (String id : cameraIds) {
-                CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(id);
-                Integer lensFacing = characteristics.get(CameraCharacteristics.LENS_FACING);
-                if (lensFacing != null && lensFacing == CameraCharacteristics.LENS_FACING_BACK) {
-                    cameraId = id;
-                    break;
-                }
-            }
-        } catch (CameraAccessException e) {
-            Log.e("", "Camera initialization failed", e);
-        }
+
     }
 
     public void next(View v){
-        openCamera();
+        Intent intent=new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
-    }
 
-    private void openCamera() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_REQUEST);
-            return;
-        }
 
-        try {
-            cameraManager.openCamera(cameraId, new CameraDevice.StateCallback() {
-                @Override
-                public void onOpened(@NonNull CameraDevice camera) {
-                    cameraDevice = camera;
-                    // Camera is now ready to use
-                }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 0);
+            //startActivity(intent);
+        } else {
+            // Permission has already been granted
+            startActivity(intent);
 
-                @Override
-                public void onDisconnected(@NonNull CameraDevice camera) {
-                    camera.close();
-                    cameraDevice = null;
-                }
-
-                @Override
-                public void onError(@NonNull CameraDevice camera, int error) {
-                    camera.close();
-                    cameraDevice = null;
-                }
-            }, null);
-        } catch (CameraAccessException e) {
-            Log.e("","Camera initialization failed", e);
         }
     }
+
+    public void testing(View v){
+        setContentView(R.layout.snimek);
+    }
+
+
 }
